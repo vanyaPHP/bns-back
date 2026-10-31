@@ -2,7 +2,7 @@ import 'dotenv/config'
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import express from 'express'
-import helmet from 'helmet'
+import helmetModule, { type HelmetOptions } from 'helmet'
 import morgan from 'morgan'
 import multer from 'multer'
 import { pool } from './db/pool.js'
@@ -20,6 +20,10 @@ import ticketsRouter from './routes/tickets.js'
 const app = express()
 const port = Number(process.env.PORT ?? 4000)
 const corsOrigin = process.env.CORS_ORIGIN ?? 'http://localhost:3000'
+
+// helmet's CJS typings resolve to a namespace (callable via .default) under some resolvers, e.g. Vercel's build.
+type HelmetFn = (options?: HelmetOptions) => express.RequestHandler
+const helmet = ((helmetModule as unknown as { default?: HelmetFn }).default ?? helmetModule) as unknown as HelmetFn
 
 app.set('trust proxy', 1)
 app.use(helmet())
